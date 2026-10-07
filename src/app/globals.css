@@ -1,26 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Lavender Seed: #8b5cf6 */
+  --md-background: #fdfafc; /* Warm off-white */
+  --md-foreground: #1c192b; /* Near-black warm */
+  --md-primary: #8b5cf6;
+  --md-on-primary: #ffffff;
+  --md-secondary-container: #ede9fe; /* Violet-100 */
+  --md-on-secondary-container: #4c1d95; /* Violet-900 */
+  --md-tertiary: #f43f5e; /* Rose accent */
+  --md-surface-container: #f5f3fa; 
+  --md-surface-container-low: #f8f6fc;
+  --md-outline: #cbd5e1;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--md-background);
+  --color-foreground: var(--md-foreground);
+  --color-primary: var(--md-primary);
+  --color-on-primary: var(--md-on-primary);
+  --color-secondary-container: var(--md-secondary-container);
+  --color-on-secondary-container: var(--md-on-secondary-container);
+  --color-tertiary: var(--md-tertiary);
+  --color-surface-container: var(--md-surface-container);
+  --color-surface-container-low: var(--md-surface-container-low);
+  --color-outline: var(--md-outline);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--md-background);
+  color: var(--md-foreground);
+}
+
+/* Material You Easing */
+.ease-md3 {
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
