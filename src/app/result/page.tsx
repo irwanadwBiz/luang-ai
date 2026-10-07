@@ -44,22 +44,37 @@ function ResultContent() {
         } else if (raw.rekomendasi) {
           // Normalisasi schema baru yang berupa string menjadi array untuk kebutuhan UI
           const normalized = {
-            rekomendasi: raw.rekomendasi.map((r: any) => ({
-              tipe: r.tipe || 'Utama',
-              tanggal_cuti: r.tanggal_cuti || '-',
-              deskripsi_singkat: r.deskripsi_singkat || '-',
-              prediksi_berangkat: r.prediksi_berangkat || '-',
-              prediksi_pulang: r.prediksi_pulang || '-',
-              kelebihan: Array.isArray(r.kelebihan) ? r.kelebihan : [r.kelebihan || ''],
-              kekurangan: Array.isArray(r.kekurangan) ? r.kekurangan : [r.kekurangan || ''],
-              info_tanggal_merah: r.info_tanggal_merah || '',
-              analisis_luang: r.analisis_luang || '-',
-              saran_perjalanan: Array.isArray(r.saran_perjalanan) ? r.saran_perjalanan : [r.saran_perjalanan || ''],
-              itinerary_harian: r.itinerary_harian || [
-                { hari: isEn ? 'Departure Time Advice' : 'Saran Waktu Berangkat', kegiatan: r.waktu_berangkat_terbaik || '-' },
-                { hari: isEn ? 'Return Time Advice' : 'Saran Waktu Pulang', kegiatan: r.waktu_pulang_terbaik || '-' }
-              ]
-            }))
+            rekomendasi: raw.rekomendasi.map((r: any) => {
+              const safeArray = (val: any) => {
+                if (Array.isArray(val)) return val;
+                if (typeof val === 'string') {
+                  try {
+                    const parsed = JSON.parse(val);
+                    if (Array.isArray(parsed)) return parsed;
+                  } catch (e) {
+                    return [val]; // Jika bukan JSON, jadikan 1 elemen array
+                  }
+                }
+                return [val || ''];
+              };
+
+              return {
+                tipe: r.tipe || 'Utama',
+                tanggal_cuti: r.tanggal_cuti || '-',
+                deskripsi_singkat: r.deskripsi_singkat || '-',
+                prediksi_berangkat: r.prediksi_berangkat || '-',
+                prediksi_pulang: r.prediksi_pulang || '-',
+                kelebihan: safeArray(r.kelebihan),
+                kekurangan: safeArray(r.kekurangan),
+                info_tanggal_merah: r.info_tanggal_merah || '',
+                analisis_luang: r.analisis_luang || '-',
+                saran_perjalanan: safeArray(r.saran_perjalanan),
+                itinerary_harian: r.itinerary_harian || [
+                  { hari: isEn ? 'Departure Time Advice' : 'Saran Waktu Berangkat', kegiatan: r.waktu_berangkat_terbaik || '-' },
+                  { hari: isEn ? 'Return Time Advice' : 'Saran Waktu Pulang', kegiatan: r.waktu_pulang_terbaik || '-' }
+                ]
+              };
+            })
           };
           setData(normalized);
         } else {
