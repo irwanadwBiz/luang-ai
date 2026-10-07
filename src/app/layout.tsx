@@ -24,6 +24,7 @@ function Header() {
         
         {isLoggedIn && (
           <div className="flex gap-3 lowercase items-center">
+            <Link href="/profile" className="text-primary hover:text-primary/80 transition-colors">{lang === 'en' ? 'profile' : 'profil'}</Link>
             <Link href="/dashboard" className="text-primary hover:text-primary/80 transition-colors">dashboard</Link>
             <button onClick={logout} className="text-muted hover:text-foreground transition-colors">{lang === 'en' ? 'logout' : 'keluar'}</button>
           </div>

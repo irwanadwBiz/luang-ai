@@ -28,7 +28,7 @@ export default function Register() {
       alert(isEn ? 'Password must be at least 6 characters!' : 'Password minimal 6 karakter!');
       return;
     }
-    const success = register(email, password, name);
+    const success = register(email, password, name, minat);
     if (success) {
       router.push("/search");
     } else {

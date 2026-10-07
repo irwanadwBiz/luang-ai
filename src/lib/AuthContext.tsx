@@ -4,19 +4,24 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 type UserProfile = {
   name: string;
+  email?: string;
   sisaCuti: number;
   jatahCuti: number;
+  bio?: string;
+  avatarUrl?: string;
+  minat?: string[];
 };
 
 type AuthContextType = {
   isLoggedIn: boolean;
   login: (email: string, pass: string) => boolean;
-  register: (email: string, pass: string, name: string) => boolean;
+  register: (email: string, pass: string, name: string, minat: string[]) => boolean;
   logout: () => void;
   lang: 'id' | 'en';
   setLang: (lang: 'id' | 'en') => void;
   userProfile: UserProfile | null;
   updateSisaCuti: (amount: number) => void;
+  updateProfile: (data: Partial<UserProfile>) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -28,13 +33,16 @@ const AuthContext = createContext<AuthContextType>({
   setLang: () => {},
   userProfile: null,
   updateSisaCuti: () => {},
+  updateProfile: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [lang, setLang] = useState<'id' | 'en'>('id');
   const [sisaCuti, setSisaCuti] = useState<number>(10);
-  const [userName, setUserName] = useState<string>("Tamu");
+  const [userProfileData, setUserProfileData] = useState<Partial<UserProfile>>({
+    name: "Tamu"
+  });
 
   useEffect(() => {
     // Check local storage on mount
@@ -45,7 +53,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (email) {
         const users = JSON.parse(localStorage.getItem('luang_users') || '[]');
         const user = users.find((u: any) => u.email === email);
-        if (user) setUserName(user.name);
+        if (user) {
+          setUserProfileData({
+            name: user.name,
+            email: user.email,
+            bio: user.bio,
+            avatarUrl: user.avatarUrl,
+            minat: user.minat
+          });
+        }
       }
     }
     const savedLang = localStorage.getItem('lang') as 'id' | 'en';
@@ -130,7 +146,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (user) {
       setIsLoggedIn(true);
-      setUserName(user.name);
+      setUserProfileData({
+        name: user.name,
+        email: user.email,
+        bio: user.bio,
+        avatarUrl: user.avatarUrl,
+        minat: user.minat
+      });
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('luang_logged_email', email);
       return true;
@@ -138,18 +160,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return false;
   };
 
-  const register = (email: string, pass: string, name: string) => {
+  const register = (email: string, pass: string, name: string, minat: string[]) => {
     const users = JSON.parse(localStorage.getItem('luang_users') || '[]');
     if (users.find((u: any) => u.email === email)) {
       return false; // Email sudah dipakai
     }
     
-    users.push({ email, password: pass, name });
+    users.push({ email, password: pass, name, minat, bio: "", avatarUrl: `https://api.dicebear.com/7.x/notionists/svg?seed=${name}` });
     localStorage.setItem('luang_users', JSON.stringify(users));
     
     // Auto login
     setIsLoggedIn(true);
-    setUserName(name);
+    setUserProfileData({
+      name: name,
+      email: email,
+      bio: "",
+      avatarUrl: `https://api.dicebear.com/7.x/notionists/svg?seed=${name}`,
+      minat: minat
+    });
     localStorage.setItem('isLoggedIn', 'true');
     localStorage.setItem('luang_logged_email', email);
     return true;
@@ -171,14 +199,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('luang_sisa_cuti', amount.toString());
   };
 
+  const updateProfile = (data: Partial<UserProfile>) => {
+    const newData = { ...userProfileData, ...data };
+    setUserProfileData(newData);
+    
+    const email = localStorage.getItem('luang_logged_email');
+    if (email) {
+      const users = JSON.parse(localStorage.getItem('luang_users') || '[]');
+      const userIndex = users.findIndex((u: any) => u.email === email);
+      if (userIndex !== -1) {
+        users[userIndex] = { ...users[userIndex], ...data };
+        localStorage.setItem('luang_users', JSON.stringify(users));
+      }
+    }
+  };
+
   const userProfile: UserProfile | null = isLoggedIn ? {
-    name: userName,
+    name: userProfileData.name || "Tamu",
+    email: userProfileData.email,
     sisaCuti: sisaCuti,
-    jatahCuti: 12
+    jatahCuti: 12,
+    bio: userProfileData.bio,
+    avatarUrl: userProfileData.avatarUrl,
+    minat: userProfileData.minat
   } : null;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, register, logout, lang, setLang: handleSetLang, userProfile, updateSisaCuti }}>
+    <AuthContext.Provider value={{ isLoggedIn, login, register, logout, lang, setLang: handleSetLang, userProfile, updateSisaCuti, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
