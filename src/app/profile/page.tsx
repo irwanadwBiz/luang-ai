@@ -14,6 +14,7 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [minat, setMinat] = useState<string[]>([]);
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   const minatOptions = isEn 
     ? ["music", "culinary", "arts & culture", "outdoors", "family", "sports"]
@@ -26,6 +27,7 @@ export default function ProfilePage() {
       setName(userProfile.name || "");
       setBio(userProfile.bio || "");
       setMinat(userProfile.minat || []);
+      setAvatarUrl(userProfile.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${userProfile.name}`);
     }
   }, [isLoggedIn, userProfile, router]);
 
@@ -35,9 +37,24 @@ export default function ProfilePage() {
     setMinat(prev => prev.includes(m) ? prev.filter(x => x !== m) : [...prev, m]);
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        alert(isEn ? 'File too large (max 2MB)' : 'Ukuran foto maksimal 2MB!');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    updateProfile({ name, bio, minat });
+    updateProfile({ name, bio, minat, avatarUrl });
     setIsEditing(false);
   };
 
@@ -52,13 +69,19 @@ export default function ProfilePage() {
         
         {/* Avatar Header */}
         <div className="flex flex-col items-center space-y-4">
-          <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-md bg-surface-container-low">
+          <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-primary/20 shadow-md bg-surface-container-low group">
             <Image 
-              src={userProfile.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${userProfile.name}`} 
+              src={isEditing ? (avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${name}`) : (userProfile.avatarUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${userProfile.name}`)} 
               alt="Avatar"
               fill
-              className="object-cover"
+              className={`object-cover ${isEditing ? 'group-hover:opacity-50 transition-opacity' : ''}`}
             />
+            {isEditing && (
+              <label className="absolute inset-0 flex items-center justify-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 text-white text-[10px] font-bold text-center leading-tight p-1 lowercase">
+                {isEn ? 'change photo' : 'ubah foto'}
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </label>
+            )}
           </div>
           {!isEditing && (
             <div className="text-center">
