@@ -54,10 +54,11 @@ export default function SearchForm() {
         }
       }
 
+      const promptInjection = isEn ? " IMPORTANT: You MUST generate the entire JSON response (including all values, recommendations, and analysis) in English language!" : "";
       const payload = {
         email: "user@test.com", // dummy email yg ada di Supabase
         destination,
-        reason,
+        reason: reason + promptInjection,
         days,
         transport,
         origin_location: originLocation,
