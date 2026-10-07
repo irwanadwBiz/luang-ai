@@ -31,6 +31,20 @@ export default function Dashboard() {
     }
   }, [isLoggedIn, router]);
 
+  const handleDelete = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation(); // Mencegah klik menembus ke card (agar tidak redirect ke result)
+    
+    const confirmMsg = isEn 
+      ? 'Are you sure you want to delete this history permanently?' 
+      : 'Yakin mau hapus riwayat ini secara permanen?';
+      
+    if (window.confirm(confirmMsg)) {
+      const newHistory = history.filter(item => item.id !== id);
+      setHistory(newHistory);
+      localStorage.setItem("luang_history", JSON.stringify(newHistory));
+    }
+  };
+
   if (!isLoggedIn) return null;
 
   return (
@@ -78,21 +92,32 @@ export default function Dashboard() {
                     <p className="text-xs text-muted lowercase">{tanggal}</p>
                   </div>
                   
-                  {isPending ? (
-                    <div className="relative group flex items-center">
-                      <span className="text-xs font-bold bg-[#fef08a] text-[#854d0e] px-3 py-1 rounded-full lowercase flex items-center gap-1 cursor-help">
-                        {isEn ? 'pending' : 'tertunda'}
-                        <span className="bg-[#854d0e] text-[#fef08a] rounded-full w-4 h-4 flex items-center justify-center text-[10px] leading-none">i</span>
-                      </span>
-                      {/* Tooltip */}
-                      <div className="absolute right-0 top-8 w-48 bg-foreground text-background text-xs p-3 rounded-xl shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-10">
-                        {isEn ? 'Token exhausted. Relax, this request is queued and will run automatically in 1 hour!' : 'Sistem kena limit API. Tenang, request ini masuk antrean dan akan dieksekusi otomatis 1 jam lagi!'}
-                        <div className="absolute -top-1 right-5 w-2 h-2 bg-foreground rotate-45"></div>
+                  <div className="flex items-center gap-2">
+                    {isPending ? (
+                      <div className="relative group flex items-center">
+                        <span className="text-xs font-bold bg-[#fef08a] text-[#854d0e] px-3 py-1 rounded-full lowercase flex items-center gap-1 cursor-help">
+                          {isEn ? 'pending' : 'tertunda'}
+                          <span className="bg-[#854d0e] text-[#fef08a] rounded-full w-4 h-4 flex items-center justify-center text-[10px] leading-none">i</span>
+                        </span>
+                        {/* Tooltip */}
+                        <div className="absolute right-0 top-8 w-48 bg-foreground text-background text-xs p-3 rounded-xl shadow-lg opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity z-10">
+                          {isEn ? 'Token exhausted. Relax, this request is queued and will run automatically in 1 hour!' : 'Sistem kena limit API. Tenang, request ini masuk antrean dan akan dieksekusi otomatis 1 jam lagi!'}
+                          <div className="absolute -top-1 right-5 w-2 h-2 bg-foreground rotate-45"></div>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <span className="text-xs font-bold bg-primary/10 text-primary px-3 py-1 rounded-full lowercase">{isEn ? 'saved' : 'tersimpan'}</span>
-                  )}
+                    ) : (
+                      <span className="text-xs font-bold bg-primary/10 text-primary px-3 py-1 rounded-full lowercase">{isEn ? 'saved' : 'tersimpan'}</span>
+                    )}
+                    
+                    {/* Delete Button */}
+                    <button 
+                      onClick={(e) => handleDelete(item.id, e)}
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-outline/10 text-muted hover:bg-tertiary/10 hover:text-tertiary transition-colors"
+                      title={isEn ? "Delete history" : "Hapus riwayat"}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
                 <p className={`text-sm lowercase ${isPending ? 'text-[#854d0e] font-medium' : 'text-foreground/80'}`}>{deskripsi}</p>
               </div>

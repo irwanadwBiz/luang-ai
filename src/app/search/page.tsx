@@ -7,7 +7,7 @@ import Image from "next/image";
 
 export default function SearchForm() {
   const router = useRouter();
-  const { isLoggedIn, lang, userProfile } = useAuth();
+  const { isLoggedIn, lang, userProfile, updateSisaCuti } = useAuth();
   const isEn = lang === 'en';
   
   const [days, setDays] = useState(3);
@@ -122,6 +122,11 @@ export default function SearchForm() {
 
       console.log("Pindah ke /result...");
       
+      // Kurangi sisa cuti jika login (sebagai indikator form berhasil terkirim/disimpan)
+      if (isLoggedIn && userProfile) {
+        updateSisaCuti(Math.max(0, userProfile.sisaCuti - days));
+      }
+
       // Fallback navigation in case Next.js router hangs
       window.location.href = '/result';
     } catch (err: any) {
@@ -158,6 +163,12 @@ export default function SearchForm() {
         }
 
         alert(isEn ? "AI limit reached. Don't worry, it's saved in Dashboard and will retry in 1 hour!" : "Limit AI habis! Jangan khawatir, request disimpan di Dashboard dan akan otomatis diulang 1 jam lagi.");
+        
+        // Tetap kurangi sisa cuti karena request pending masuk antrean
+        if (isLoggedIn && userProfile) {
+          updateSisaCuti(Math.max(0, userProfile.sisaCuti - days));
+        }
+
         router.push("/dashboard");
       } else {
         alert("Gagal konek ke n8n! Pastikan n8n sudah Active. Error: " + errMsg);
@@ -300,7 +311,7 @@ export default function SearchForm() {
               {isEn 
                 ? 'want personalized route analysis based on your location and automatic leave tracking? ' 
                 : 'ingin analisis rute akurat dari lokasimu dan pengaturan sisa cuti otomatis? '}
-              <a href="#" onClick={(e) => { e.preventDefault(); alert(isEn ? 'Please login using the top right button.' : 'Silakan login menggunakan tombol di kanan atas.'); }} className="font-bold underline hover:text-primary/80 transition-colors">
+              <a href="#" onClick={(e) => { e.preventDefault(); router.push("/login"); }} className="font-bold underline hover:text-primary/80 transition-colors">
                 {isEn ? 'login now!' : 'login sekarang!'}
               </a>
             </p>

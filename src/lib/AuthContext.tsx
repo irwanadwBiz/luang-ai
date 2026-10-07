@@ -10,37 +10,52 @@ type UserProfile = {
 
 type AuthContextType = {
   isLoggedIn: boolean;
-  login: () => void;
+  login: (email: string, pass: string) => boolean;
+  register: (email: string, pass: string, name: string) => boolean;
   logout: () => void;
   lang: 'id' | 'en';
   setLang: (lang: 'id' | 'en') => void;
   userProfile: UserProfile | null;
+  updateSisaCuti: (amount: number) => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
-  login: () => {},
+  login: () => false,
+  register: () => false,
   logout: () => {},
   lang: 'id',
   setLang: () => {},
   userProfile: null,
+  updateSisaCuti: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [lang, setLang] = useState<'id' | 'en'>('id');
+  const [sisaCuti, setSisaCuti] = useState<number>(10);
+  const [userName, setUserName] = useState<string>("Tamu");
 
   useEffect(() => {
     // Check local storage on mount
     const saved = localStorage.getItem('isLoggedIn');
     if (saved === 'true') {
-      // eslint-disable-next-line
       setIsLoggedIn(true);
+      const email = localStorage.getItem('luang_logged_email');
+      if (email) {
+        const users = JSON.parse(localStorage.getItem('luang_users') || '[]');
+        const user = users.find((u: any) => u.email === email);
+        if (user) setUserName(user.name);
+      }
     }
     const savedLang = localStorage.getItem('lang') as 'id' | 'en';
     if (savedLang) {
       // eslint-disable-next-line
       setLang(savedLang);
+    }
+    const savedCuti = localStorage.getItem('luang_sisa_cuti');
+    if (savedCuti) {
+      setSisaCuti(parseInt(savedCuti, 10));
     }
   }, []);
 
@@ -109,14 +124,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => clearInterval(interval);
   }, []);
 
-  const login = () => {
+  const login = (email: string, pass: string) => {
+    const users = JSON.parse(localStorage.getItem('luang_users') || '[]');
+    const user = users.find((u: any) => u.email === email && u.password === pass);
+    
+    if (user) {
+      setIsLoggedIn(true);
+      setUserName(user.name);
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('luang_logged_email', email);
+      return true;
+    }
+    return false;
+  };
+
+  const register = (email: string, pass: string, name: string) => {
+    const users = JSON.parse(localStorage.getItem('luang_users') || '[]');
+    if (users.find((u: any) => u.email === email)) {
+      return false; // Email sudah dipakai
+    }
+    
+    users.push({ email, password: pass, name });
+    localStorage.setItem('luang_users', JSON.stringify(users));
+    
+    // Auto login
     setIsLoggedIn(true);
+    setUserName(name);
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('luang_logged_email', email);
+    return true;
   };
 
   const logout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('luang_logged_email');
   };
 
   const handleSetLang = (newLang: 'id' | 'en') => {
@@ -124,14 +166,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('lang', newLang);
   };
 
+  const updateSisaCuti = (amount: number) => {
+    setSisaCuti(amount);
+    localStorage.setItem('luang_sisa_cuti', amount.toString());
+  };
+
   const userProfile: UserProfile | null = isLoggedIn ? {
-    name: "Teduh",
-    sisaCuti: 5,
+    name: userName,
+    sisaCuti: sisaCuti,
     jatahCuti: 12
   } : null;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout, lang, setLang: handleSetLang, userProfile }}>
+    <AuthContext.Provider value={{ isLoggedIn, login, register, logout, lang, setLang: handleSetLang, userProfile, updateSisaCuti }}>
       {children}
     </AuthContext.Provider>
   );

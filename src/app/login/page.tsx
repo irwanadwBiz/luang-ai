@@ -14,8 +14,12 @@ export default function Login() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    login();
-    router.push("/search");
+    const success = login(email, password);
+    if (success) {
+      router.push("/search");
+    } else {
+      alert(isEn ? 'Invalid email or password! Please register if you do not have an account.' : 'Email atau password salah! Silakan daftar jika belum punya akun.');
+    }
   };
 
   return (

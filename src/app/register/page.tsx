@@ -7,9 +7,12 @@ import { useState } from "react";
 
 export default function Register() {
   const router = useRouter();
-  const { login, lang } = useAuth();
+  const { register, lang } = useAuth();
   const isEn = lang === 'en';
   
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [minat, setMinat] = useState<string[]>([]);
   const minatOptions = isEn 
     ? ["music", "culinary", "arts & culture", "outdoors", "family", "sports"]
@@ -21,8 +24,16 @@ export default function Register() {
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
-    login();
-    router.push("/search");
+    if (password.length < 6) {
+      alert(isEn ? 'Password must be at least 6 characters!' : 'Password minimal 6 karakter!');
+      return;
+    }
+    const success = register(email, password, name);
+    if (success) {
+      router.push("/search");
+    } else {
+      alert(isEn ? 'Email already registered! Please use a different email or login.' : 'Email sudah terdaftar! Silakan gunakan email lain atau login.');
+    }
   };
 
   return (
@@ -35,15 +46,15 @@ export default function Register() {
       <form onSubmit={handleRegister} className="bg-surface-container rounded-3xl p-6 shadow-sm border border-outline/10 space-y-5">
         <div className="space-y-2">
           <label className="block text-sm font-medium lowercase">{isEn ? 'full name' : 'nama lengkap'}</label>
-          <input required type="text" className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-3 text-sm focus:outline-none focus:border-primary transition-colors duration-200" />
-        </div>
-        <div className="space-y-2">
-          <label className="block text-sm font-medium lowercase">{isEn ? 'date of birth' : 'tanggal lahir'}</label>
-          <input required type="date" className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-3 text-sm focus:outline-none focus:border-primary transition-colors duration-200" />
+          <input required type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-3 text-sm focus:outline-none focus:border-primary transition-colors duration-200" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium lowercase">{isEn ? 'email' : 'email'}</label>
-          <input required type="email" className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-3 text-sm focus:outline-none focus:border-primary transition-colors duration-200" />
+          <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-3 text-sm focus:outline-none focus:border-primary transition-colors duration-200" />
+        </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium lowercase">{isEn ? 'password' : 'password'}</label>
+          <input required type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-3 text-sm focus:outline-none focus:border-primary transition-colors duration-200" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium lowercase">{isEn ? 'phone number' : 'nomor telepon'}</label>
