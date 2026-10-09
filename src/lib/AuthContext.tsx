@@ -21,6 +21,7 @@ type AuthContextType = {
   setLang: (lang: 'id' | 'en') => void;
   userProfile: UserProfile | null;
   updateSisaCuti: (amount: number) => void;
+  updateJatahCuti: (amount: number) => void;
   updateProfile: (data: Partial<UserProfile>) => void;
 };
 
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextType>({
   setLang: () => {},
   userProfile: null,
   updateSisaCuti: () => {},
+  updateJatahCuti: () => {},
   updateProfile: () => {},
 });
 
@@ -40,6 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [lang, setLang] = useState<'id' | 'en'>('id');
   const [sisaCuti, setSisaCuti] = useState<number>(10);
+  const [jatahCuti, setJatahCuti] = useState<number>(12);
   const [userProfileData, setUserProfileData] = useState<Partial<UserProfile>>({
     name: "Tamu"
   });
@@ -72,6 +75,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const savedCuti = localStorage.getItem('luang_sisa_cuti');
     if (savedCuti) {
       setSisaCuti(parseInt(savedCuti, 10));
+    }
+    const savedJatah = localStorage.getItem('luang_jatah_cuti');
+    if (savedJatah) {
+      setJatahCuti(parseInt(savedJatah, 10));
     }
   }, []);
 
@@ -199,6 +206,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.setItem('luang_sisa_cuti', amount.toString());
   };
 
+  const updateJatahCuti = (amount: number) => {
+    setJatahCuti(amount);
+    localStorage.setItem('luang_jatah_cuti', amount.toString());
+  };
+
   const updateProfile = (data: Partial<UserProfile>) => {
     const newData = { ...userProfileData, ...data };
     setUserProfileData(newData);
@@ -218,14 +230,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     name: userProfileData.name || "Tamu",
     email: userProfileData.email,
     sisaCuti: sisaCuti,
-    jatahCuti: 12,
+    jatahCuti: jatahCuti,
     bio: userProfileData.bio,
     avatarUrl: userProfileData.avatarUrl,
     minat: userProfileData.minat
   } : null;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, register, logout, lang, setLang: handleSetLang, userProfile, updateSisaCuti, updateProfile }}>
+    <AuthContext.Provider value={{ isLoggedIn, login, register, logout, lang, setLang: handleSetLang, userProfile, updateSisaCuti, updateJatahCuti, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

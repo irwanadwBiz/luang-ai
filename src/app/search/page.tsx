@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../lib/AuthContext";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 
 export default function SearchForm() {
@@ -11,9 +13,12 @@ export default function SearchForm() {
   const isEn = lang === 'en';
   
   const [days, setDays] = useState(3);
-  const [reason, setReason] = useState(isEn ? "vacation" : "liburan");
+  const [reason, setReason] = useState(isEn ? "Vacation" : "Liburan");
+  const [activity, setActivity] = useState("");
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
+  const [startDate, endDate] = dateRange;
   const [destination, setDestination] = useState("");
-  const [transport, setTransport] = useState(isEn ? "personal vehicle" : "kendaraan pribadi");
+  const [transport, setTransport] = useState(isEn ? "Personal vehicle" : "Kendaraan pribadi");
   
   const [useLocation, setUseLocation] = useState(false); // Consent checkbox
   
@@ -21,8 +26,8 @@ export default function SearchForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!destination.trim()) return alert(isEn ? "please enter destination!" : "isi tujuan dulu ya!");
-    if (isLoggedIn && !userProfile) return alert(isEn ? "profile error!" : "gagal memuat profil!");
+    if (!destination.trim()) return alert(isEn ? "Please enter destination!" : "Isi tujuan dulu ya!");
+    if (isLoggedIn && !userProfile) return alert(isEn ? "Profile error!" : "Gagal memuat profil!");
     
     setLoading(true);
     try {
@@ -54,11 +59,25 @@ export default function SearchForm() {
         }
       }
 
-      const promptInjection = isEn ? " IMPORTANT: You MUST generate the entire JSON response (including all values, recommendations, and analysis) in English language!" : "";
+      let promptInjection = isEn ? " IMPORTANT: You MUST generate the entire JSON response (including all values, recommendations, and analysis) in English language!" : "";
+      if (startDate && endDate) {
+        const startStr = startDate.toLocaleDateString('id-ID');
+        const endStr = endDate.toLocaleDateString('id-ID');
+        promptInjection += ` CRITICAL: User berencana berangkat dan pulang secara spesifik di dalam rentang blok waktu dari tanggal ${startStr} hingga ${endStr}. Pastikan SEMUA kandidat tanggal cuti yang direkomendasikan berada PERSIS di dalam rentang blok waktu tersebut, JANGAN menyarankan bulan atau event libur lain di luar rentang itu.`;
+      }
+      
+      let finalReason = (reason === "Vacation" || reason === "Liburan") && activity.trim() 
+        ? `${reason} (Activity: ${activity.trim()})`
+        : reason;
+        
+      if (startDate && endDate) {
+        finalReason += ` - Rentang Waktu: ${startDate.toLocaleDateString('id-ID')} s.d. ${endDate.toLocaleDateString('id-ID')}`;
+      }
+
       const payload = {
-        email: "user@test.com", // dummy email yg ada di Supabase
+        email: "User@test.com", // dummy email yg ada di Supabase
         destination,
-        reason: reason + promptInjection,
+        reason: finalReason + promptInjection,
         days,
         transport,
         origin_location: originLocation,
@@ -113,7 +132,8 @@ export default function SearchForm() {
           destination,
           reason,
           dateSaved: new Date().toISOString(),
-          data: data
+          data: data,
+          days: days
         };
         // Simpan max 10 riwayat
         localStorage.setItem("luang_history", JSON.stringify([newHistoryItem, ...history].slice(0, 10)));
@@ -145,10 +165,10 @@ export default function SearchForm() {
             destination,
             reason,
             dateSaved: new Date().toISOString(),
-            status: 'pending_limit',
+            status: 'Pending_limit',
             retryAt: Date.now() + (60 * 60 * 1000), // 1 jam dari sekarang
             payload: {
-              email: "user@test.com",
+              email: "User@test.com",
               destination,
               reason,
               days,
@@ -177,8 +197,8 @@ export default function SearchForm() {
     }
   };
 
-  const reasonOptions = isEn ? ["vacation", "hometown visit", "family event"] : ["liburan", "mudik", "acara keluarga"];
-  const transportOptions = isEn ? ["personal vehicle", "public transport"] : ["kendaraan pribadi", "transportasi umum"];
+  const reasonOptions = isEn ? ["Vacation", "Hometown visit", "Family event"] : ["Liburan", "Mudik", "Acara keluarga"];
+  const transportOptions = isEn ? ["Personal vehicle", "Public transport"] : ["Kendaraan pribadi", "Transportasi umum"];
 
   if (loading) {
     return (
@@ -197,8 +217,8 @@ export default function SearchForm() {
           </div>
         </div>
         <div className="space-y-2">
-          <p className="text-xl font-bold text-primary lowercase">{isEn ? 'crafting schedule...' : 'meracik jadwal...'}</p>
-          <p className="text-sm text-muted lowercase animate-pulse">{isEn ? 'syncing national holidays & traffic data' : 'menyinkronkan kalender cuti & data macet'}</p>
+          <p className="text-xl font-bold text-primary ">{isEn ? 'Crafting schedule...' : 'Meracik jadwal...'}</p>
+          <p className="text-sm text-muted animate-pulse">{isEn ? 'Syncing national holidays & traffic data' : 'Menyinkronkan kalender cuti & data macet'}</p>
         </div>
       </div>
     );
@@ -207,15 +227,15 @@ export default function SearchForm() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500 pb-8">
       <div className="mb-4">
-        <h2 className="text-3xl font-bold tracking-tight lowercase text-foreground">{isEn ? 'find your perfect time.' : 'cari waktu terbaikmu.'}</h2>
-        <p className="text-muted mt-2 lowercase">{isEn ? 'let ai handle the headache of scheduling.' : 'biar ai yang pusing cari jadwal yang pas.'}</p>
+        <h2 className="text-3xl font-bold tracking-tight text-foreground">{isEn ? 'Find your perfect time.' : 'Cari waktu terbaikmu.'}</h2>
+        <p className="text-muted mt-2 ">{isEn ? 'Let AI handle the headache of scheduling.' : 'Biar AI yang pusing cari jadwal yang pas.'}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-surface-container rounded-[32px] p-6 shadow-sm hover:shadow-md transition-all duration-300 ease-md3 space-y-6">
         
         {/* Stepper */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium lowercase text-foreground/90">{isEn ? 'how many leave days to use?' : 'berapa hari cuti yang dipakai?'}</label>
+          <label className="block text-sm font-medium text-foreground/90">{isEn ? 'How many leave days to use?' : 'Berapa hari cuti yang dipakai?'}</label>
           <div className="flex items-center space-x-4 bg-surface-container-low rounded-full p-1.5 w-fit border border-outline/30">
             <button type="button" onClick={() => setDays(Math.max(1, days - 1))} className="w-10 h-10 rounded-full flex items-center justify-center bg-white shadow-sm text-primary active:scale-95 transition-transform ease-md3 hover:bg-primary/5">-</button>
             <span className="font-bold w-6 text-center text-lg">{days}</span>
@@ -225,17 +245,17 @@ export default function SearchForm() {
 
         {/* Pills Reason */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium lowercase text-foreground/90">{isEn ? 'purpose?' : 'keperluan apa?'}</label>
+          <label className="block text-sm font-medium text-foreground/90">{isEn ? 'Purpose?' : 'Keperluan apa?'}</label>
           <div className="flex flex-wrap gap-2">
             {reasonOptions.map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setReason(r)}
-                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-md3 active:scale-95 lowercase border ${
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-md3 active:scale-95 border ${
                   reason === r 
                     ? 'bg-primary text-on-primary border-primary shadow-sm' 
-                    : 'bg-surface-container-low text-foreground border-outline/50 hover:bg-primary/5'
+                    : 'Bg-surface-container-low text-foreground border-outline/50 hover:bg-primary/5'
                 }`}
               >
                 {r}
@@ -244,31 +264,68 @@ export default function SearchForm() {
           </div>
         </div>
 
+        {/* Optional Activity Input (only if Vacation/Liburan) */}
+        {(reason === "Vacation" || reason === "Liburan") && (
+          <div className="space-y-3 animate-in slide-in-from-top-2 duration-300">
+            <label className="block text-sm font-medium text-foreground/90">{isEn ? 'Specific activity? (Optional)' : 'Mau aktivitas apa? (Opsional)'}</label>
+            <input 
+              type="text" 
+              value={activity}
+              onChange={(e) => setActivity(e.target.value)}
+              placeholder={isEn ? "E.g., camping, culinary, museum" : "Contoh: camping, kuliner, ke pantai"}
+              className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-4 text-sm focus:outline-none focus:border-primary transition-colors duration-200 placeholder-muted/60"
+            />
+          </div>
+        )}
+
         {/* MD3 Input */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium lowercase text-foreground/90">{isEn ? 'destination' : 'tujuan'}</label>
+          <label className="block text-sm font-medium text-foreground/90">{isEn ? 'Destination' : 'Tujuan'}</label>
           <input 
             type="text" 
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            placeholder={isEn ? "e.g., bali, tokyo" : "contoh: bandung, bali"}
+            placeholder={isEn ? "E.g., Bali, Tokyo" : "Contoh: Bandung, Bali"}
             className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-4 text-sm focus:outline-none focus:border-primary transition-colors duration-200 placeholder-muted/60"
           />
         </div>
 
+        {/* Date Range Input */}
+        <div className="space-y-4 animate-in fade-in duration-300 bg-surface-container-low p-5 rounded-2xl border border-outline/30">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-foreground/90">{isEn ? 'When do you plan to go?' : 'Pilih rentang tanggal (Blok waktu)'}</label>
+            <div className="w-full bg-white rounded-xl border border-outline/20 p-2 text-sm focus-within:border-primary transition-colors duration-200 text-foreground shadow-sm">
+              <DatePicker
+                selectsRange={true}
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(update) => setDateRange(update)}
+                minDate={new Date()}
+                placeholderText={isEn ? "Select start and end dates" : "Pilih tanggal mulai s.d. selesai"}
+                className="w-full focus:outline-none p-1 text-sm bg-transparent cursor-pointer"
+                wrapperClassName="w-full"
+                dateFormat="dd MMM yyyy"
+              />
+            </div>
+          </div>
+          <div className="text-xs text-foreground/60 leading-relaxed pt-1">
+            {isEn ? 'Select a range of dates. AI will find the best leave strategy within this block.' : 'Sorot (blok) beberapa hari sekaligus di kalender. AI akan mencari jadwal cuti terbaik dalam rentang waktu tersebut.'}
+          </div>
+        </div>
+
         {/* Pills Transport */}
         <div className="space-y-3">
-          <label className="block text-sm font-medium lowercase text-foreground/90">{isEn ? 'transportation' : 'transportasi'}</label>
+          <label className="block text-sm font-medium text-foreground/90">{isEn ? 'Transportation' : 'Transportasi'}</label>
           <div className="flex flex-wrap gap-2">
             {transportOptions.map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTransport(t)}
-                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-md3 active:scale-95 lowercase border ${
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ease-md3 active:scale-95 border ${
                   transport === t 
                     ? 'bg-secondary-container text-on-secondary-container border-transparent' 
-                    : 'bg-surface-container-low text-foreground border-outline/50 hover:bg-secondary-container/50'
+                    : 'Bg-surface-container-low text-foreground border-outline/50 hover:bg-secondary-container/50'
                 }`}
               >
                 {t}
@@ -280,15 +337,15 @@ export default function SearchForm() {
         {/* Additional Auth Fields */}
         {isLoggedIn && userProfile && (
           <div className="pt-6 border-t border-outline/20">
-            <p className="block text-sm font-medium lowercase text-foreground/90 mb-3">{isEn ? 'your leave status' : 'status cutimu'}</p>
+            <p className="block text-sm font-medium text-foreground/90 mb-3">{isEn ? 'Your leave status' : 'Status cutimu'}</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-surface-container-low border border-outline/30 rounded-xl p-3 flex justify-between items-center">
-                <span className="text-xs font-bold text-foreground/60 lowercase">{isEn ? 'remaining' : 'sisa cuti'}</span>
-                <span className="text-sm font-black text-primary">{userProfile.sisaCuti} {isEn ? 'days' : 'hari'}</span>
+                <span className="text-xs font-bold text-foreground/60 ">{isEn ? 'Remaining' : 'Sisa cuti'}</span>
+                <span className="text-sm font-black text-primary">{userProfile.sisaCuti} {isEn ? 'Days' : 'Hari'}</span>
               </div>
               <div className="bg-surface-container-low border border-outline/30 rounded-xl p-3 flex justify-between items-center">
-                <span className="text-xs font-bold text-foreground/60 lowercase">{isEn ? 'quota' : 'jatah tahunan'}</span>
-                <span className="text-sm font-black text-foreground/80">{userProfile.jatahCuti} {isEn ? 'days' : 'hari'}</span>
+                <span className="text-xs font-bold text-foreground/60 ">{isEn ? 'Quota' : 'Jatah tahunan'}</span>
+                <span className="text-sm font-black text-foreground/80">{userProfile.jatahCuti} {isEn ? 'Days' : 'Hari'}</span>
               </div>
             </div>
             <div className="flex items-center space-x-2 pt-4">
@@ -308,20 +365,20 @@ export default function SearchForm() {
 
         {!isLoggedIn && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center mt-4">
-            <p className="text-xs font-medium text-primary lowercase">
+            <p className="text-xs font-medium text-primary ">
               {isEn 
-                ? 'want personalized route analysis based on your location and automatic leave tracking? ' 
-                : 'ingin analisis rute akurat dari lokasimu dan pengaturan sisa cuti otomatis? '}
+                ? 'Want personalized route analysis based on your location and automatic leave tracking? ' 
+                : 'Ingin analisis rute akurat dari lokasimu dan pengaturan sisa cuti otomatis? '}
               <a href="#" onClick={(e) => { e.preventDefault(); router.push("/login"); }} className="font-bold underline hover:text-primary/80 transition-colors">
-                {isEn ? 'login now!' : 'login sekarang!'}
+                {isEn ? 'Login now!' : 'Login sekarang!'}
               </a>
             </p>
           </div>
         )}
 
         {/* Primary CTA */}
-        <button type="submit" className="w-full mt-2 bg-primary text-on-primary rounded-full py-4 font-bold text-sm lowercase shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
-          {isEn ? 'find available time' : 'temukan waktu luang'}
+        <button type="submit" className="w-full mt-2 bg-primary text-on-primary rounded-full py-4 font-bold text-sm shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
+          {isEn ? 'Find available time' : 'Temukan waktu luang'}
         </button>
       </form>
     </div>

@@ -25,13 +25,13 @@ export default function Login() {
   return (
     <div className="flex-1 flex flex-col justify-center animate-in fade-in duration-500">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-primary mb-2 lowercase">{isEn ? 'welcome back' : 'selamat datang kembali'}</h2>
-        <p className="text-sm text-muted lowercase">{isEn ? 'login for more personalized results' : 'masuk untuk hasil yang lebih personal'}</p>
+        <h2 className="text-3xl font-bold text-primary mb-2 ">{isEn ? 'Welcome back' : 'Selamat datang kembali'}</h2>
+        <p className="text-sm text-muted ">{isEn ? 'Login for more personalized results' : 'Masuk untuk hasil yang lebih personal'}</p>
       </div>
 
       <form onSubmit={handleLogin} className="bg-surface-container rounded-3xl p-6 shadow-sm border border-outline/10 space-y-6">
         <div className="space-y-2">
-          <label className="block text-sm font-medium lowercase">{isEn ? 'email' : 'email'}</label>
+          <label className="block text-sm font-medium ">{isEn ? 'Email' : 'Email'}</label>
           <input 
             type="email" 
             value={email}
@@ -42,8 +42,8 @@ export default function Login() {
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <label className="block text-sm font-medium lowercase">{isEn ? 'password' : 'password'}</label>
-            <Link href="/forgot-password" className="text-xs text-primary hover:underline lowercase">{isEn ? 'forgot password?' : 'lupa password?'}</Link>
+            <label className="block text-sm font-medium ">{isEn ? 'Password' : 'Password'}</label>
+            <Link href="/forgot-password" className="text-xs text-primary hover:underline ">{isEn ? 'Forgot password?' : 'Lupa password?'}</Link>
           </div>
           <input 
             type="password" 
@@ -54,13 +54,13 @@ export default function Login() {
           />
         </div>
         
-        <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm lowercase shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3 mt-4">
-          {isEn ? 'login' : 'masuk'}
+        <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3 mt-4">
+          {isEn ? 'Login' : 'Masuk'}
         </button>
       </form>
       
-      <p className="mt-8 text-center text-sm text-muted lowercase">
-        {isEn ? "don't have an account?" : "belum punya akun?"} <Link href="/register" className="text-primary font-bold hover:underline">{isEn ? 'register here' : 'daftar di sini'}</Link>
+      <p className="mt-8 text-center text-sm text-muted ">
+        {isEn ? "Don't have an account?" : "Belum punya akun?"} <Link href="/register" className="text-primary font-bold hover:underline">{isEn ? 'Register here' : 'Daftar di sini'}</Link>
       </p>
     </div>
   );

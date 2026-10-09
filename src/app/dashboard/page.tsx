@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 export default function Dashboard() {
-  const { isLoggedIn, lang } = useAuth();
+  const { isLoggedIn, lang, userProfile, updateSisaCuti } = useAuth();
   const isEn = lang === 'en';
   const router = useRouter();
 
@@ -39,6 +39,15 @@ export default function Dashboard() {
       : 'Yakin mau hapus riwayat ini secara permanen?';
       
     if (window.confirm(confirmMsg)) {
+      const itemToDelete = history.find(item => item.id === id);
+      if (itemToDelete) {
+        const refundDays = itemToDelete.days || itemToDelete.payload?.days || 0;
+        if (refundDays > 0 && userProfile) {
+          const newSisaCuti = Math.min(userProfile.sisaCuti + refundDays, userProfile.jatahCuti || 12);
+          updateSisaCuti(newSisaCuti);
+        }
+      }
+
       const newHistory = history.filter(item => item.id !== id);
       setHistory(newHistory);
       localStorage.setItem("luang_history", JSON.stringify(newHistory));
@@ -50,18 +59,18 @@ export default function Dashboard() {
   return (
     <div className="flex-1 flex flex-col py-4 space-y-8 animate-in fade-in duration-500">
       <div>
-        <h2 className="text-3xl font-bold text-primary mb-2 lowercase">{isEn ? 'your search history' : 'riwayat pencarianmu'}</h2>
-        <p className="text-sm text-muted lowercase">
+        <h2 className="text-3xl font-bold text-primary mb-2 ">{isEn ? 'Your search history' : 'Riwayat pencarianmu'}</h2>
+        <p className="text-sm text-muted ">
           {history.length > 0 
             ? (isEn ? `you saved ${history.length * 2} leave days this year` : `kamu telah menghemat ${history.length * 2} hari cuti tahun ini`) 
-            : (isEn ? 'no history yet' : 'belum ada riwayat pencarian')}
+            : (isEn ? 'No history yet' : 'Belum ada riwayat pencarian')}
         </p>
       </div>
 
       <div className="space-y-4">
         {history.length === 0 ? (
           <div className="bg-surface-container-low rounded-3xl p-8 text-center border border-outline/10">
-            <p className="text-muted lowercase">{isEn ? 'you havent searched for any free time yet.' : 'kamu belum pernah mencari waktu luang.'}</p>
+            <p className="text-muted ">{isEn ? 'You havent searched for any free time yet.' : 'Kamu belum pernah mencari waktu luang.'}</p>
           </div>
         ) : (
           history.map((item: any) => {
@@ -70,10 +79,10 @@ export default function Dashboard() {
             const firstRek = item.data?.rekomendasi?.[0];
             const deskripsi = isPending 
               ? (isEn ? 'AI is resting. Will retry automatically.' : 'AI sedang istirahat. Akan dicoba lagi otomatis.') 
-              : (firstRek?.deskripsi_singkat || (isEn ? 'no strategy recommended' : 'tidak ada rekomendasi'));
+              : (firstRek?.deskripsi_singkat || (isEn ? 'No strategy recommended' : 'Tidak ada rekomendasi'));
             const tanggal = isPending 
               ? (isEn ? 'Waiting Queue' : 'Menunggu Antrean') 
-              : (firstRek?.tanggal_cuti || (isEn ? 'no dates' : 'belum ada jadwal'));
+              : (firstRek?.tanggal_cuti || (isEn ? 'No dates' : 'Belum ada jadwal'));
             
             return (
               <div 
@@ -84,19 +93,19 @@ export default function Dashboard() {
                     router.push("/result");
                   }
                 }}
-                className={`bg-surface-container rounded-3xl p-5 shadow-sm border border-outline/10 space-y-3 transition-all ${isPending ? 'opacity-80' : 'cursor-pointer hover:shadow-md active:scale-95'}`}
+                className={`bg-surface-container rounded-3xl p-5 shadow-sm border border-outline/10 space-y-3 transition-all ${isPending ? 'opacity-80' : 'Cursor-pointer hover:shadow-md active:scale-95'}`}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-bold lowercase">{item.reason} {isEn ? 'to' : 'ke'} {item.destination}</p>
-                    <p className="text-xs text-muted lowercase">{tanggal}</p>
+                    <p className="font-bold ">{item.reason} {isEn ? 'To' : 'Ke'} {item.destination}</p>
+                    <p className="text-xs text-muted ">{tanggal}</p>
                   </div>
                   
                   <div className="flex items-center gap-2">
                     {isPending ? (
                       <div className="relative group flex items-center">
-                        <span className="text-xs font-bold bg-[#fef08a] text-[#854d0e] px-3 py-1 rounded-full lowercase flex items-center gap-1 cursor-help">
-                          {isEn ? 'pending' : 'tertunda'}
+                        <span className="text-xs font-bold bg-[#fef08a] text-[#854d0e] px-3 py-1 rounded-full flex items-center gap-1 cursor-help">
+                          {isEn ? 'Pending' : 'Tertunda'}
                           <span className="bg-[#854d0e] text-[#fef08a] rounded-full w-4 h-4 flex items-center justify-center text-[10px] leading-none">i</span>
                         </span>
                         {/* Tooltip */}
@@ -106,7 +115,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                     ) : (
-                      <span className="text-xs font-bold bg-primary/10 text-primary px-3 py-1 rounded-full lowercase">{isEn ? 'saved' : 'tersimpan'}</span>
+                      <span className="text-xs font-bold bg-primary/10 text-primary px-3 py-1 rounded-full ">{isEn ? 'Saved' : 'Tersimpan'}</span>
                     )}
                     
                     {/* Delete Button */}
@@ -119,15 +128,15 @@ export default function Dashboard() {
                     </button>
                   </div>
                 </div>
-                <p className={`text-sm lowercase ${isPending ? 'text-[#854d0e] font-medium' : 'text-foreground/80'}`}>{deskripsi}</p>
+                <p className={`text-sm ${isPending ? 'text-[#854d0e] font-medium' : 'Text-foreground/80'}`}>{deskripsi}</p>
               </div>
             );
           })
         )}
       </div>
 
-      <Link href="/search" className="block text-center w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm lowercase shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3 mt-auto">
-        {isEn ? 'find new free time' : 'cari waktu luang baru'}
+      <Link href="/search" className="block text-center w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3 mt-auto">
+        {isEn ? 'Find new free time' : 'Cari waktu luang baru'}
       </Link>
     </div>
   );

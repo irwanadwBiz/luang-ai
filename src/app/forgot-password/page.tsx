@@ -49,11 +49,11 @@ export default function ForgotPassword() {
   return (
     <div className="flex-1 flex flex-col justify-center animate-in fade-in duration-500">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-primary mb-2 lowercase">{isEn ? 'forgot password' : 'lupa password'}</h2>
-        <p className="text-sm text-muted lowercase">
-          {step === "email" && (isEn ? "enter your email to receive an otp" : "masukkan emailmu untuk menerima kode otp")}
-          {step === "otp" && (isEn ? "enter the 4-digit otp we sent" : "masukkan 4 digit otp yang kami kirimkan")}
-          {step === "new_password" && (isEn ? "enter your new password" : "masukkan password barumu")}
+        <h2 className="text-3xl font-bold text-primary mb-2 ">{isEn ? 'Forgot password' : 'Lupa password'}</h2>
+        <p className="text-sm text-muted ">
+          {step === "email" && (isEn ? "Enter your email to receive an otp" : "Masukkan emailmu untuk menerima kode otp")}
+          {step === "otp" && (isEn ? "Enter the 4-digit otp we sent" : "Masukkan 4 digit otp yang kami kirimkan")}
+          {step === "new_password" && (isEn ? "Enter your new password" : "Masukkan password barumu")}
         </p>
       </div>
 
@@ -61,7 +61,7 @@ export default function ForgotPassword() {
         {step === "email" ? (
           <form onSubmit={handleEmailSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="block text-sm font-medium lowercase">{isEn ? 'email address' : 'alamat email'}</label>
+              <label className="block text-sm font-medium ">{isEn ? 'Email address' : 'Alamat email'}</label>
               <input 
                 type="email" 
                 value={email}
@@ -70,14 +70,14 @@ export default function ForgotPassword() {
                 className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-4 text-sm focus:outline-none focus:border-primary transition-colors duration-200"
               />
             </div>
-            <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm lowercase shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
-              {isEn ? 'send otp' : 'kirim otp'}
+            <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
+              {isEn ? 'Send otp' : 'Kirim otp'}
             </button>
           </form>
         ) : step === "otp" ? (
           <form onSubmit={handleOtpSubmit} className="space-y-6 animate-in slide-in-from-right-4 duration-300">
             <div className="space-y-2">
-              <label className="block text-sm font-medium lowercase">{isEn ? 'otp code' : 'kode otp'}</label>
+              <label className="block text-sm font-medium ">{isEn ? 'Otp code' : 'Kode otp'}</label>
               <input 
                 type="text"
                 maxLength={4}
@@ -88,17 +88,17 @@ export default function ForgotPassword() {
                 className="w-full text-center tracking-[1em] font-bold bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-4 text-xl focus:outline-none focus:border-primary transition-colors duration-200"
               />
             </div>
-            <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm lowercase shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
-              {isEn ? 'verify' : 'verifikasi'}
+            <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
+              {isEn ? 'Verify' : 'Verifikasi'}
             </button>
-            <button type="button" onClick={() => setStep("email")} className="w-full mt-2 text-primary font-medium text-xs hover:underline lowercase">
-              {isEn ? 'resend code' : 'kirim ulang kode'}
+            <button type="button" onClick={() => setStep("email")} className="w-full mt-2 text-primary font-medium text-xs hover:underline ">
+              {isEn ? 'Resend code' : 'Kirim ulang kode'}
             </button>
           </form>
         ) : (
           <form onSubmit={handleNewPasswordSubmit} className="space-y-6 animate-in slide-in-from-right-4 duration-300">
             <div className="space-y-2">
-              <label className="block text-sm font-medium lowercase">{isEn ? 'new password' : 'password baru'}</label>
+              <label className="block text-sm font-medium ">{isEn ? 'New password' : 'Password baru'}</label>
               <input 
                 type="password" 
                 value={newPassword}
@@ -107,15 +107,15 @@ export default function ForgotPassword() {
                 className="w-full bg-surface-container-low rounded-t-xl rounded-b-none border-b-2 border-outline p-4 text-sm focus:outline-none focus:border-primary transition-colors duration-200"
               />
             </div>
-            <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm lowercase shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
-              {isEn ? 'save password' : 'simpan password'}
+            <button type="submit" className="w-full bg-primary text-on-primary rounded-full py-4 font-bold text-sm shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300 ease-md3">
+              {isEn ? 'Save password' : 'Simpan password'}
             </button>
           </form>
         )}
       </div>
       
-      <p className="mt-8 text-center text-sm text-muted lowercase">
-        <Link href="/login" className="text-primary font-bold hover:underline">{isEn ? 'back to login' : 'kembali ke halaman masuk'}</Link>
+      <p className="mt-8 text-center text-sm text-muted ">
+        <Link href="/login" className="text-primary font-bold hover:underline">{isEn ? 'Back to login' : 'Kembali ke halaman masuk'}</Link>
       </p>
     </div>
   );
