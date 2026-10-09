@@ -92,7 +92,8 @@ export default function SearchForm() {
       const res = await fetch(webhookUrl, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "x-api-key": "luang-secret-2027"
         },
         body: JSON.stringify(payload)
       });
